@@ -6,7 +6,7 @@ import webbrowser
 from fastapi import FastAPI
 import gradio as gr
 import requests
-from process_local import process_nostamp
+from process_local import process_files
 from variable import Var
 
 def get_blocks():
@@ -15,7 +15,7 @@ def get_blocks():
 		gr.Markdown("视频/音频转字幕")
 
 		with gr.Row():
-			input_files = gr.Textbox(lines=5, label="文件路径", placeholder="每行对应一个文件", interactive=True)
+			input_files = gr.Textbox(lines=5, label="文件路径（支持文件夹）", placeholder="每行对应一个文件", interactive=True)
 			output_files = gr.Textbox(lines=5, label="结果", interactive=True)
 
 		with gr.Row():
@@ -27,7 +27,7 @@ def get_blocks():
 			op_merge_short = gr.Checkbox(label="是否合并短句", value=Var.merge_short)
 		
 		process_button.click(
-			fn=process_nostamp,
+			fn=process_files,
 			inputs=[input_files, name_nostamp, op_language, op_merge_short],
 			outputs=[process_button, output_files]
 		)

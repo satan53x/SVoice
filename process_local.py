@@ -40,11 +40,7 @@ def audio_to_srt(file_path):
 		ban_emo_unk=True,
 	)
 	print('开始处理文本和时间戳')
-	lines, lines_timestamp = text_postprocess(
-		res[0]["text"], 
-		res[0]["timestamp"], 
-		Var.config['remove_end_punc']
-	)
+	lines, lines_timestamp = text_postprocess(res[0]["text"], res[0]["timestamp"])
 	#print(lines, lines_timestamp)
 	create_srt(lines, lines_timestamp, srt_path)
 	print(f"保存字幕文件: {srt_path}")
@@ -59,7 +55,10 @@ def srt_to_srt(srt_path):
 		max_gap=Var.config['max_gap'], 
 		max_duration=Var.config['max_duration'], 
 		max_char_len=Var.config['max_char_len'], 
-		delay_when_gap=Var.config['delay_when_gap']
+		delay_when_gap=Var.config['delay_when_gap'], 
+		ahead_when_gap=Var.config['ahead_when_gap'], 
+		remove_end_punc=Var.config['remove_end_punc'],
+		merge_str=Var.config['merge_str'],
 	)
 	create_srt(lines, lines_timestamp, srt_path)
 	print(f"保存字幕文件: {srt_path}")
@@ -85,29 +84,46 @@ def file_to_srt(filepath):
 		if Var.merge_short:
 			srt_path = srt_to_srt(srt_path)
 	elif ext.lower() in subtitle_formats:
-		srt_path = srt_to_srt(srt_path)
+		#srt_path = srt_to_srt(srt_path)
+		srt_path = ""
 	else:
-		srt_path = "不支持的文件格式"
+		srt_path = "不支持的文件格式: " + filepath
 	return srt_path
 
-def process_files(args):
-	files = args[0]
-	lst = re.split(r"[\r\n]+", files)
-	out = []
-	for filepath in lst:
-		ret = file_to_srt(filepath)
-		out.append(ret)
-	return "\n".join(out)
+def process_files(*args):
+	yield gr.update(interactive=False, value="处理中..."), gr.update(value="")
+	Var.init_args(args)
+	files = parse_files(args[0])
+	results = ''
+	for i, filepath in enumerate(files):
+		try:
+			result = file_to_srt(filepath)
+		except Exception as e:
+			#print(e)
+			traceback.print_exc()
+			result = '处理失败: ' + filepath
+		if not result:
+			continue
+		results += result
+		if i + 1 < len(files):
+			results += '\n'
+			yield gr.update(), gr.update(value=results)
+	yield gr.update(interactive=True, value="处理完成，继续进行提取"), results
 
-def process_nostamp(*args):
-	yield gr.update(interactive=False, value="处理中..."), None
-	try:
-		Var.init_args(args)
-		ret = process_files(args)
-	except Exception as e:
-		#print(e)
-		traceback.print_exc()
-	yield gr.update(interactive=True, value="处理完成，继续进行提取"), ret
+def parse_files(text):
+	files = []
+	lst = re.split(r"[\r\n]+", text)
+	for s in lst:
+		if os.path.isfile(s):
+			#文件
+			files.append(s)
+		elif os.path.isdir(s):
+			#目录
+			for t in os.listdir(s):
+				path = os.path.join(s, t)
+				if os.path.isfile(path):
+					files.append(path)
+	return files
 
 #-------------------------------------------------------------
 # app_interface = gr.Interface(
