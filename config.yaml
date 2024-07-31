@@ -5,12 +5,16 @@ model_name_nostamp: iic/SenseVoiceSmall
 #是否合并短句
 merge_short: true
 #合并短句时最大间隔(ms)
-max_gap: 800
+max_gap: 1000
 #合并短句时最大时长(ms)
-max_duration: 5000
+max_duration: 6000
 #合并短句时最大字符数
 max_char_len: 20
+#合并短句时超过间隔则提前后一句(ms)
+ahead_when_gap: 300
 #合并短句时超过间隔则延后前一句(ms)
-delay_when_gap: 800
+delay_when_gap: 1200
 #去除行尾标点
 remove_end_punc: false
+#合并短句时的连接字符串
+merge_str: ' -'
