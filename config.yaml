@@ -1,0 +1,16 @@
+#语言：auto, zh, en, yue, ja, ko, nospeech
+language: ja
+#无时间戳模型名字
+model_name_nostamp: iic/SenseVoiceSmall
+#是否合并短句
+merge_short: true
+#合并短句时最大间隔(ms)
+max_gap: 800
+#合并短句时最大时长(ms)
+max_duration: 5000
+#合并短句时最大字符数
+max_char_len: 20
+#合并短句时超过间隔则延后前一句(ms)
+delay_when_gap: 800
+#去除行尾标点
+remove_end_punc: false

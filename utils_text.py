@@ -2,7 +2,7 @@ import re
 
 text_split_pattern = re.compile(r" ?<[^>]+>")
 
-def text_postprocess(text, timestamps):
+def text_postprocess(text, timestamps, remove_end_punc=True):
 	#清除控制代码并分割
 	textList = text_split_pattern.split(text)
 	start = 0
@@ -16,14 +16,15 @@ def text_postprocess(text, timestamps):
 		lines_timestamp.append([timestamps[start][0], timestamps[end][1]])
 		start = end + 1
 		#文本
-		line = line.rstrip("。！.!")
+		if remove_end_punc:
+			line = line.rstrip("。！.!")
 		if line == "":
 			line = " "
 		lines.append(line)
 	return lines, lines_timestamp
 
 #合并时间接近的短句
-def merge_close_lines(texts, timestamps, max_gap=1000, max_duration=5000):
+def merge_close_lines(texts, timestamps, max_gap=1000, max_duration=5000, max_char_len=20, delay_when_gap=1000):
 	merged_texts = []
 	merged_timestamps = []
 	i = 0
@@ -33,13 +34,20 @@ def merge_close_lines(texts, timestamps, max_gap=1000, max_duration=5000):
 		while i + 1 < len(texts):
 			next_start, next_end = timestamps[i + 1]
 			gap = next_start - current_end
-			if gap <= max_gap and next_end - current_start <= max_duration:
-				# 合并当前字幕和下一个字幕
-				current_text += "  " + texts[i + 1]
-				current_end = next_end
-				i += 1
-			else:
+			if gap > max_gap or next_end - current_start > max_duration:
+				#时间不匹配
 				break
+			if len(current_text) + len(texts[i + 1]) > max_char_len:
+				#字数太多
+				break
+			# 合并当前字幕和下一个字幕
+			current_text += "  " + texts[i + 1]
+			current_end = next_end
+			i += 1
+		if delay_when_gap:
+			current_end += delay_when_gap
+			if i+1 < len(texts) and current_end > next_start:
+				current_end = next_start - 100
 		merged_texts.append(current_text)
 		merged_timestamps.append((current_start, current_end))
 		i += 1
