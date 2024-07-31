@@ -34,6 +34,7 @@ def merge_close_lines(texts, timestamps, max_gap=1000, max_duration=5000, max_ch
 			if current_text == "":
 				current_text = " "
 		current_start, current_end = timestamps[i]
+		is_first = True
 		while i + 1 < len(texts):
 			next_start, next_end = timestamps[i + 1]
 			gap = next_start - current_end
@@ -44,6 +45,9 @@ def merge_close_lines(texts, timestamps, max_gap=1000, max_duration=5000, max_ch
 				#字数太多
 				break
 			# 合并当前字幕和下一个字幕
+			if is_first:
+				is_first = False
+				current_text = merge_str.lstrip() + current_text
 			current_text += merge_str + texts[i + 1]
 			current_end = next_end
 			i += 1

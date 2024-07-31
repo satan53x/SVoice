@@ -1,5 +1,6 @@
 import os
 import re
+import time
 import traceback
 import gradio as gr
 from funasr.utils.postprocess_utils import rich_transcription_postprocess
@@ -25,7 +26,9 @@ def audio_to_srt(file_path):
 	if os.path.isfile(srt_path):
 		print(f"字幕文件已存在: {srt_path}")
 		return srt_path
+	# --------------------------
 	print('开始处理音频文件: ' + file_path)
+	start = time.time()
 	Var.init_model()
 	if not Var.model:
 		print("模型加载失败")
@@ -39,6 +42,9 @@ def audio_to_srt(file_path):
 		batch_size_s=120,
 		ban_emo_unk=True,
 	)
+	end = time.time()
+	print(f"音频转文本耗时: {end-start:.3f} s")
+	# --------------------------
 	print('开始处理文本和时间戳')
 	lines, lines_timestamp = text_postprocess(res[0]["text"], res[0]["timestamp"])
 	#print(lines, lines_timestamp)
@@ -69,7 +75,10 @@ def video_to_audio(video_path):
 	if os.path.isfile(audio_path):
 		return audio_path
 	video_clip = VideoFileClip(video_path)
+	start = time.time()
 	video_clip.audio.write_audiofile(audio_path)
+	end = time.time()
+	print(f"视频转音频耗时: {end-start:.3f} s")
 	return audio_path
 
 def file_to_srt(filepath):
