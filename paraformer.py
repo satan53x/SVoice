@@ -1,6 +1,3 @@
-import os
-from SenseVoice.model import SenseVoiceSmall
-from funasr.utils.postprocess_utils import rich_transcription_postprocess
 from funasr import AutoModel
 
 model_dir = "paraformer-zh"

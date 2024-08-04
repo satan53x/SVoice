@@ -16,7 +16,9 @@ def get_blocks():
 
 		with gr.Row():
 			input_files = gr.Textbox(lines=5, label="文件路径（支持文件夹）", placeholder="每行对应一个文件", interactive=True)
-			output_files = gr.Textbox(lines=5, label="结果", interactive=True)
+
+		with gr.Row():
+			output_files = gr.Textbox(lines=5, label="结果", interactive=False)
 
 		with gr.Row():
 			name_nostamp = gr.Textbox(label="无时间戳模型", value=Var.name_nostamp, interactive=True)

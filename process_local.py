@@ -3,7 +3,6 @@ import re
 import time
 import traceback
 import gradio as gr
-from funasr.utils.postprocess_utils import rich_transcription_postprocess
 from moviepy.editor import VideoFileClip
 from utils_text import *
 from variable import Var

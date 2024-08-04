@@ -1,4 +1,3 @@
-import os
 #from SenseVoice.model import SenseVoiceSmall
 #from funasr import AutoModel
 from auto_model import AutoModel
